@@ -28,6 +28,9 @@ class PipelinedCPU extends Module {
 
     val stall = Wire(Bool())  // load-use
     val flush = Wire(Bool()) // jump or take branch
+    val rs_data1 = Wire(UInt(32.W))
+    val rs_data2 = Wire(UInt(32.W))
+    val wb_data = Wire(UInt(32.W))
 
     reg.clock := (!clock.asBool()).asClock()
 
@@ -77,7 +80,7 @@ class PipelinedCPU extends Module {
         val alu_out = RegNext(alu.io.out)
         val mem_read = RegNext(Mux(flush, false.B, ID_EX.mem_read), false.B)
         val mem_write = RegNext(Mux(flush, false.B, ID_EX.mem_write), false.B)
-        val mem_wr_data = RegNext(ID_EX.reg_data2)
+        val mem_wr_data = RegNext(rs_data2)
         val wb_en = RegNext(Mux(flush, false.B, ID_EX.wb_en), false.B)
         val wb_sel = RegNext(ID_EX.wb_sel)
     }
@@ -105,9 +108,6 @@ class PipelinedCPU extends Module {
     }
 
     // forwarding
-    val rs_data1 = Wire(UInt(32.W))
-    val rs_data2 = Wire(UInt(32.W))
-    val wb_data = Wire(UInt(32.W))
     val forward_c1a = ID_EX.rs1.orR && (ID_EX.rs1 === EX_MEM.rd) && EX_MEM.wb_en && (EX_MEM.wb_sel === WB_SEL_ALU)
     val forward_c1b = ID_EX.rs2.orR && (ID_EX.rs2 === EX_MEM.rd) && EX_MEM.wb_en && (EX_MEM.wb_sel === WB_SEL_ALU)
     val forward_c2a = ID_EX.rs1.orR && (ID_EX.rs1 === MEM_WB.rd) && MEM_WB.wb_en

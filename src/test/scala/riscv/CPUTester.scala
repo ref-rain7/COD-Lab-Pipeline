@@ -59,7 +59,7 @@ class CPUTests(c : PipelinedCPU) extends PeekPokeTester(c) {
 
     def test(): Unit = {
         var hitPassCnt = 0
-        for (i <- 0 until 0x3000) {
+        for (i <- 0 until 0x4000) {
             val instAddr = runCycle()
             if (instAddr == passInstAddr) {
                 hitPassCnt += 1
